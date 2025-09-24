@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 STOP_TOKEN = "<|endoftext|>"
+STOP_TOKENS = [STOP_TOKEN, "\n"]
 
 @dataclass(frozen=True)
 class Message:
@@ -28,7 +29,7 @@ class Conversation:
         )
 
     def stop_tokens(self, additional = []):
-        return list(dict.fromkeys([STOP_TOKEN, "\n"] + [message.user.strip() + ":" for message in self.messages if message.user and message.user.strip()] + additional))
+        return list(dict.fromkeys(STOP_TOKENS + [message.user.strip() + ":" for message in self.messages if message.user and message.user.strip()] + additional))
 
 @dataclass(frozen=True)
 class Config:

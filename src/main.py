@@ -152,6 +152,51 @@ async def simulate_command(int: discord.Interaction, username: str):
     except Exception as e:
         logger.exception(e)
 
+
+@tree.command(name="simulate_random", description="Simulate the next discord message")
+@discord.app_commands.checks.has_permissions(send_messages=True)
+@discord.app_commands.checks.has_permissions(view_channel=True)
+@discord.app_commands.checks.bot_has_permissions(send_messages=True)
+@discord.app_commands.checks.bot_has_permissions(view_channel=True)
+async def simulate_random_command(int: discord.Interaction):
+    try:
+        # block servers not in allow list
+        if should_block(guild=int.guild):
+            return
+
+        channel = int.channel
+        thread = channel
+
+        channel_messages = [
+            discord_message_to_message(message, client.user)
+            async for message in thread.history(limit=MAX_THREAD_MESSAGES)
+        ]
+        channel_messages = [
+            x
+            for xs in channel_messages
+            for x in xs
+        ]
+        #channel_messages = [x for x in channel_messages if x is not None]
+        channel_messages.reverse()
+
+        await int.response.send_message(
+            f"Simulated next message", ephemeral=True
+        )
+
+        # generate the response
+        async with thread.typing():
+            response_data = await generate_completion_response(
+                messages=channel_messages, user=None
+            )
+
+        # send response
+        await process_response(
+            user=None, thread=thread, response_data=response_data
+        )
+
+    except Exception as e:
+        logger.exception(e)
+
 # calls for each message
 #@client.event
 #async def on_message(message: DiscordMessage):
