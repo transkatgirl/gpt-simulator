@@ -9,8 +9,8 @@ class Message:
     text: Optional[str] = None
 
     def render(self):
-        result = self.user + ":"
-        if self.text is not None:
+        result = self.user.strip() + ":"
+        if self.text is not None and self.text.strip() is not None:
             result += " " + self.text
         return result
 
@@ -28,7 +28,7 @@ class Conversation:
         )
 
     def stop_tokens(self, additional = []):
-        return list(dict.fromkeys([STOP_TOKEN, "\n"] + [message.user + ":" for message in self.messages if message.user] + additional))
+        return list(dict.fromkeys([STOP_TOKEN, "\n"] + [message.user.strip() + ":" for message in self.messages if message.user and message.user.strip()] + additional))
 
 @dataclass(frozen=True)
 class Config:

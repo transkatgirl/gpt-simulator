@@ -90,9 +90,10 @@ async def process_response(
                 )
             )
         else:
-            print("\n---\n\n# Response\n\n" + user + ": " + reply_text)
+            message = Message(user, reply_text).render()
+            print("\n---\n\n# Response\n\n" + message)
             print("\n---\n\n")
-            sent_message = await thread.send(user + ": " + reply_text)
+            sent_message = await thread.send(message)
     elif status is CompletionResult.INVALID_REQUEST:
         await thread.send(
             embed=discord.Embed(

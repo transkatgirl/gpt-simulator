@@ -135,7 +135,7 @@ async def simulate_command(int: discord.Interaction, username: str):
         channel_messages.reverse()
 
         await int.response.send_message(
-            f"Simulated user {username}", ephemeral=True
+            f"Simulated user `{username}`", ephemeral=True
         )
 
         # generate the response
