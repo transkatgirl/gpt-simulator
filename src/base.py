@@ -28,7 +28,7 @@ class Conversation:
         )
 
     def stop_tokens(self, additional = []):
-        return list(dict.fromkeys([STOP_TOKEN] + [message.user + ":" for message in self.messages] + additional))
+        return list(dict.fromkeys([STOP_TOKEN, "\n"] + [message.user + ":" for message in self.messages if message.user] + additional))
 
 @dataclass(frozen=True)
 class Config:

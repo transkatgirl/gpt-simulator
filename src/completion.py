@@ -11,16 +11,15 @@ from src.constants import (
 )
 import discord
 from src.base import Message, Prompt, Conversation
-from src.utils import split_into_shorter_messages, close_thread, logger
+from src.utils import close_thread, logger
 
 #MY_BOT_NAME = BOT_NAME
 #MY_BOT_EXAMPLE_CONVOS = EXAMPLE_CONVOS
 
 class CompletionResult(Enum):
     OK = 0
-    TOO_LONG = 1
-    INVALID_REQUEST = 2
-    OTHER_ERROR = 3
+    INVALID_REQUEST = 1
+    OTHER_ERROR = 2
 
 
 @dataclass
@@ -45,6 +44,10 @@ async def generate_completion_response(
         #)
         #conversation = Conversation(messages + [Message(MY_BOT_NAME)])
         conversation = Conversation(messages + [Message(user)])
+        print("\n---\n\n# Prompt\n\n" + conversation.render())
+        print("\n# Stop Tokens\n")
+        print(conversation.stop_tokens([user]))
+        print("\n---\n")
         response = openai.Completion.create(
             model=MODEL,
             prompt=conversation.render(),
@@ -58,17 +61,12 @@ async def generate_completion_response(
             status=CompletionResult.OK, reply_text=reply, status_text=None
         )
     except openai.error.InvalidRequestError as e:
-        if "This model's maximum context length" in e.user_message:
-            return CompletionData(
-                status=CompletionResult.TOO_LONG, reply_text=None, status_text=str(e)
-            )
-        else:
-            logger.exception(e)
-            return CompletionData(
-                status=CompletionResult.INVALID_REQUEST,
-                reply_text=None,
-                status_text=str(e),
-            )
+        logger.exception(e)
+        return CompletionData(
+            status=CompletionResult.INVALID_REQUEST,
+            reply_text=None,
+            status_text=str(e),
+        )
     except Exception as e:
         logger.exception(e)
         return CompletionData(
@@ -92,12 +90,9 @@ async def process_response(
                 )
             )
         else:
-            #shorter_response = split_into_shorter_messages(reply_text)
-            shorter_response = split_into_shorter_messages(user + ": " + reply_text)
-            for r in shorter_response:
-                sent_message = await thread.send(r)
-    elif status is CompletionResult.TOO_LONG:
-        await close_thread(thread)
+            print("\n---\n\n# Response\n\n" + user + ": " + reply_text)
+            print("\n---\n\n")
+            sent_message = await thread.send(user + ": " + reply_text)
     elif status is CompletionResult.INVALID_REQUEST:
         await thread.send(
             embed=discord.Embed(

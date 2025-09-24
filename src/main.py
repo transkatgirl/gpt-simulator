@@ -126,7 +126,12 @@ async def simulate_command(int: discord.Interaction, username: str):
             discord_message_to_message(message, client.user)
             async for message in thread.history(limit=MAX_THREAD_MESSAGES)
         ]
-        channel_messages = [x for x in channel_messages if x is not None]
+        channel_messages = [
+            x
+            for xs in channel_messages
+            for x in xs
+        ]
+        #channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
 
         await int.response.send_message(
