@@ -49,6 +49,7 @@ async def generate_completion_response(
             model=MODEL,
             prompt=conversation.render(),
             temperature=1.0,
+            top_p=0.95,
             max_tokens=512,
             stop=conversation.stop_tokens([user]),
         )
