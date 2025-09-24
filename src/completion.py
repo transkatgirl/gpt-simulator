@@ -45,8 +45,6 @@ async def generate_completion_response(
         #)
         #conversation = Conversation(messages + [Message(MY_BOT_NAME)])
         conversation = Conversation(messages + [Message(user)])
-        print("prompt = " + conversation.render())
-        print(conversation.stop_tokens([user]))
         response = openai.Completion.create(
             model=MODEL,
             prompt=conversation.render(),

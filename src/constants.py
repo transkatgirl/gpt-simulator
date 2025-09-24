@@ -36,7 +36,7 @@ BOT_INVITE_URL = f"https://discord.com/api/oauth2/authorize?client_id={DISCORD_C
 SECONDS_DELAY_RECEIVING_MSG = (
     3  # give a delay for the bot to respond so it can catch multiple messages
 )
-MAX_THREAD_MESSAGES = 200
+MAX_THREAD_MESSAGES = 256
 ACTIVATE_THREAD_PREFX = "💬✅"
 INACTIVATE_THREAD_PREFIX = "💬❌"
 MAX_CHARS_PER_REPLY_MSG = (
