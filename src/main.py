@@ -178,6 +178,7 @@ async def simulate_random_command(int: discord.Interaction):
         ]
         #channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
+        channel_messages = channel_messages[-MAX_THREAD_MESSAGES:]
 
         await int.response.send_message(
             f"Simulated next message", ephemeral=True
