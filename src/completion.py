@@ -94,20 +94,20 @@ async def process_response(
                 )
             )
         else:
-            if not user and ':' not in reply_text:
-                print("\n---\n\n# Response [Failed]\n\n" + reply_text)
-                print("\n---\n\n")
-                sent_message = await thread.send(
-                    embed=discord.Embed(
-                        description=f"**Invalid response** - no username delimiter",
-                        color=discord.Color.yellow(),
-                    )
-                )
-            else:
-                message = Message(user, reply_text).render() if user else reply_text
-                print("\n---\n\n# Response\n\n" + message)
-                print("\n---\n\n")
-                sent_message = await thread.send(message)
+            #if not user and ':' not in reply_text:
+            #    print("\n---\n\n# Response [Failed]\n\n" + reply_text)
+            #    print("\n---\n\n")
+            #    sent_message = await thread.send(
+            #        embed=discord.Embed(
+            #            description=f"**Invalid response** - no username delimiter",
+            #            color=discord.Color.yellow(),
+            #        )
+            #    )
+            #else:
+            message = Message(user, reply_text).render() if user else reply_text
+            print("\n---\n\n# Response\n\n" + message)
+            print("\n---\n\n")
+            sent_message = await thread.send(message)
     elif status is CompletionResult.INVALID_REQUEST:
         await thread.send(
             embed=discord.Embed(

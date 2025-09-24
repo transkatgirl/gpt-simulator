@@ -17,7 +17,10 @@ def discord_message_to_message(message: DiscordMessage, bot_user) -> list[Messag
         if len(split) == 3:
             return [Message(user=split[0], text=split[2].partition('\n')[0].strip())]
         else:
-            return []
+            return [
+                Message(user="Simulator", text=content)
+                for content in message.clean_content.splitlines() if content and content.strip()
+            ]
     if bot_user in message.mentions:
         return []
     if message.content:
