@@ -13,7 +13,6 @@ from src.constants import MAX_CHARS_PER_REPLY_MSG, INACTIVATE_THREAD_PREFIX
 
 
 def discord_message_to_message(message: DiscordMessage, bot_user) -> Optional[Message]:
-    print(message.clean_content)
     if message.author == bot_user:
         split=message.content.partition(":")
         if len(split) == 3:
