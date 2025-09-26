@@ -199,88 +199,144 @@ async def simulate_random_command(int: discord.Interaction):
     except Exception as e:
         logger.exception(e)
 
+
+
+@tree.command(name="simulate_me", description="Simulate yourself")
+@discord.app_commands.checks.has_permissions(send_messages=True)
+@discord.app_commands.checks.has_permissions(view_channel=True)
+@discord.app_commands.checks.bot_has_permissions(send_messages=True)
+@discord.app_commands.checks.bot_has_permissions(view_channel=True)
+async def simulate_me_command(int: discord.Interaction):
+    try:
+        # block servers not in allow list
+        if should_block(guild=int.guild):
+            return
+
+        channel = int.channel
+        thread = channel
+        username = int.user.name
+
+        channel_messages = [
+            discord_message_to_message(message, client.user)
+            async for message in thread.history(limit=MAX_THREAD_MESSAGES)
+        ]
+        channel_messages = [
+            x
+            for xs in channel_messages
+            for x in xs
+        ]
+        #channel_messages = [x for x in channel_messages if x is not None]
+        channel_messages.reverse()
+        channel_messages = channel_messages[-MAX_THREAD_MESSAGES:]
+
+        await int.response.send_message(
+            f"Simulated user `{username}`", ephemeral=True
+        )
+
+        # generate the response
+        async with thread.typing():
+            response_data = await generate_completion_response(
+                messages=channel_messages, user=username
+            )
+
+        # send response
+        await process_response(
+            user=username, thread=thread, response_data=response_data
+        )
+
+    except Exception as e:
+        logger.exception(e)
+
+
+
 # calls for each message
-#@client.event
-#async def on_message(message: DiscordMessage):
-#    try:
-#        # block servers not in allow list
-#        if should_block(guild=message.guild):
-#            return
-#
-#        # ignore messages from the bot
-#        if message.author == client.user:
-#            return
-#
-#        # ignore messages not in a thread
-#        channel = message.channel
-#        #if not isinstance(channel, discord.Thread):
-#        #    return
-#
-#        # ignore threads not created by the bot
-#        thread = channel
-#        if not client.user.mentioned_in(message):
-#            return
-#        #if thread.owner_id != client.user.id:
-#        #    return
-#
-#        # ignore threads that are archived locked or title is not what we want
-#        #if (
-#        #    thread.archived
-#        #    or thread.locked
-#        #    or not thread.name.startswith(ACTIVATE_THREAD_PREFX)
-#        #):
-#        #    # ignore this thread
-#        #    return
-#
-#        #if thread.message_count > MAX_THREAD_MESSAGES:
-#        #    # too many messages, no longer going to reply
-#        #    await close_thread(thread=thread)
-#        #    return
-#
-#        # wait a bit in case user has more messages
-#        if SECONDS_DELAY_RECEIVING_MSG > 0:
-#            await asyncio.sleep(SECONDS_DELAY_RECEIVING_MSG)
-#            if is_last_message_stale(
-#                interaction_message=message,
-#                last_message=thread.last_message,
-#                bot_id=client.user.id,
-#            ):
-#                # there is another message, so ignore this one
-#                return
-#
-#        logger.info(
-#            f"Thread message to process - {message.author}: {message.content[:50]} - {thread.name} {thread.jump_url}"
-#        )
-#
-#        channel_messages = [
-#            discord_message_to_message(message, client.user)
-#            async for message in thread.history(limit=MAX_THREAD_MESSAGES)
-#        ]
-#        channel_messages = [x for x in channel_messages if x is not None]
-#        channel_messages.reverse()
-#
-#        username=message.author.name
-#
-#        # generate the response
-#        async with thread.typing():
-#            response_data = await generate_completion_response(
-#                messages=channel_messages, user=username
-#            )
-#
-#        if is_last_message_stale(
-#            interaction_message=message,
-#            last_message=thread.last_message,
-#            bot_id=client.user.id,
-#        ):
-#            # there is another message and its not from us, so ignore this response
-#            return
-#
-#        # send response
-#        await process_response(
-#            user=username, thread=thread, response_data=response_data
-#        )
-#    except Exception as e:
-#        logger.exception(e)
+@client.event
+async def on_message(message: DiscordMessage):
+    try:
+        # block servers not in allow list
+        if should_block(guild=message.guild):
+            return
+
+        # ignore messages from the bot
+        if message.author == client.user:
+            return
+
+        # ignore messages not in a thread
+        channel = message.channel
+        #if not isinstance(channel, discord.Thread):
+        #    return
+
+        # ignore threads not created by the bot
+        thread = channel
+        if not client.user.mentioned_in(message):
+            return
+        #if thread.owner_id != client.user.id:
+        #    return
+
+        # ignore threads that are archived locked or title is not what we want
+        #if (
+        #    thread.archived
+        #    or thread.locked
+        #    or not thread.name.startswith(ACTIVATE_THREAD_PREFX)
+        #):
+        #    # ignore this thread
+        #    return
+
+        #if thread.message_count > MAX_THREAD_MESSAGES:
+        #    # too many messages, no longer going to reply
+        #    await close_thread(thread=thread)
+        #    return
+
+        # wait a bit in case user has more messages
+        if SECONDS_DELAY_RECEIVING_MSG > 0:
+            await asyncio.sleep(SECONDS_DELAY_RECEIVING_MSG)
+            if is_last_message_stale(
+                interaction_message=message,
+                last_message=thread.last_message,
+                bot_id=client.user.id,
+            ):
+                # there is another message, so ignore this one
+                return
+
+        logger.info(
+            f"Thread message to process - {message.author}: {message.content[:50]} - {thread.name} {thread.jump_url}"
+        )
+
+        channel_messages = [
+            discord_message_to_message(message, client.user)
+            async for message in thread.history(limit=MAX_THREAD_MESSAGES)
+        ]
+        channel_messages = [
+            x
+            for xs in channel_messages
+            for x in xs
+        ]
+        channel_messages.reverse()
+        channel_messages = channel_messages[-MAX_THREAD_MESSAGES:]
+
+        #username=message.author.name
+        username=client.user.name
+
+        # generate the response
+        async with thread.typing():
+            response_data = await generate_completion_response(
+                messages=channel_messages, user=username
+            )
+
+        if is_last_message_stale(
+            interaction_message=message,
+            last_message=thread.last_message,
+            bot_id=client.user.id,
+        ):
+            # there is another message and its not from us, so ignore this response
+            return
+
+        # send response
+        await process_response(
+            user=username, thread=thread, response_data=response_data
+        )
+    except Exception as e:
+        logger.exception(e)
 
 
 client.run(DISCORD_BOT_TOKEN)

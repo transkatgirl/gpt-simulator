@@ -21,8 +21,8 @@ def discord_message_to_message(message: DiscordMessage, bot_user) -> list[Messag
                 Message(user="Simulator", text=content)
                 for content in message.clean_content.splitlines() if content and content.strip()
             ]
-    if bot_user in message.mentions:
-        return []
+    #if bot_user in message.mentions:
+    #    return []
     if message.content:
         return [
             Message(user=message.author.name, text=content)

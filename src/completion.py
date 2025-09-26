@@ -47,7 +47,7 @@ async def generate_completion_response(
         rendered_conversation = conversation.render()
         if not user:
             rendered_conversation += "\n"
-        stop_tokens = conversation.stop_tokens([user]) if user else STOP_TOKENS
+        stop_tokens = conversation.stop_tokens([user+":"]) if user else STOP_TOKENS
         print("\n---\n\n# Prompt\n\n" + rendered_conversation)
         print("\n# Stop Tokens\n")
         print(stop_tokens)
