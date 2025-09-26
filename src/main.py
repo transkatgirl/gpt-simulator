@@ -133,6 +133,7 @@ async def simulate_command(int: discord.Interaction, username: str):
         ]
         #channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
+        channel_messages = channel_messages[-MAX_THREAD_MESSAGES:]
 
         await int.response.send_message(
             f"Simulated user `{username}`", ephemeral=True
