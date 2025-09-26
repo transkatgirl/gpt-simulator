@@ -262,7 +262,7 @@ async def puppet_command(int: discord.Interaction, username: str, message: str):
         channel = int.channel
         thread = channel
 
-        wait_time=(len(Message(username, message).render()) * (PUPPET_CHARS_PER_TOKEN/PUPPET_TOKENS_PER_SECOND) * random.uniform(0.8, 1.2))
+        wait_time=(len(Message(username, message).render()) * (PUPPET_CHARS_PER_TOKEN/PUPPET_TOKENS_PER_SECOND) * random.uniform(0.8, 1.2)) + random.uniform(0.4, 2.0)
 
         await int.response.send_message(
             f"Puppetted user `{username}` with {round(wait_time, 1)} second wait", ephemeral=True
