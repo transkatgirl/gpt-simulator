@@ -122,3 +122,13 @@ async def process_response(
                 color=discord.Color.yellow(),
             )
         )
+
+
+async def puppet_response(
+    username: str, thread: discord.Thread, message: str
+):
+
+    message = Message(username, message).render()
+    print("\n---\n\n# Puppet Response\n\n" + message)
+    print("\n---\n\n")
+    sent_message = await thread.send(message)

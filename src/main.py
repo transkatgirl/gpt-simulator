@@ -1,5 +1,6 @@
 import discord
 from discord import Message as DiscordMessage
+import random
 import logging
 from src.base import Message, Conversation
 from src.constants import (
@@ -9,6 +10,8 @@ from src.constants import (
     ACTIVATE_THREAD_PREFX,
     MAX_THREAD_MESSAGES,
     SECONDS_DELAY_RECEIVING_MSG,
+    PUPPET_CHARS_PER_TOKEN,
+    PUPPET_TOKENS_PER_SECOND,
 )
 import asyncio
 from src.utils import (
@@ -19,7 +22,7 @@ from src.utils import (
     discord_message_to_message,
 )
 from src import completion
-from src.completion import generate_completion_response, process_response
+from src.completion import generate_completion_response, process_response, puppet_response
 
 logging.basicConfig(
     format="[%(asctime)s] [%(filename)s:%(lineno)d] %(message)s", level=logging.INFO
@@ -153,7 +156,6 @@ async def simulate_command(int: discord.Interaction, username: str):
     except Exception as e:
         logger.exception(e)
 
-
 @tree.command(name="simulate_random", description="Simulate the next discord message")
 @discord.app_commands.checks.has_permissions(send_messages=True)
 @discord.app_commands.checks.has_permissions(view_channel=True)
@@ -199,8 +201,6 @@ async def simulate_random_command(int: discord.Interaction):
     except Exception as e:
         logger.exception(e)
 
-
-
 @tree.command(name="simulate_me", description="Simulate yourself")
 @discord.app_commands.checks.has_permissions(send_messages=True)
 @discord.app_commands.checks.has_permissions(view_channel=True)
@@ -242,6 +242,39 @@ async def simulate_me_command(int: discord.Interaction):
         # send response
         await process_response(
             user=username, thread=thread, response_data=response_data
+        )
+
+    except Exception as e:
+        logger.exception(e)
+
+
+@tree.command(name="puppet", description="Send a message using Simulator")
+@discord.app_commands.checks.has_permissions(send_messages=True)
+@discord.app_commands.checks.has_permissions(view_channel=True)
+@discord.app_commands.checks.bot_has_permissions(send_messages=True)
+@discord.app_commands.checks.bot_has_permissions(view_channel=True)
+async def puppet_command(int: discord.Interaction, username: str, message: str):
+    try:
+        # block servers not in allow list
+        if should_block(guild=int.guild):
+            return
+
+        channel = int.channel
+        thread = channel
+
+        wait_time=(len(Message(username, message).render()) * (PUPPET_CHARS_PER_TOKEN/PUPPET_TOKENS_PER_SECOND) * random.uniform(0.8, 1.2))
+
+        await int.response.send_message(
+            f"Puppetted user `{username}` with {round(wait_time, 1)} second wait", ephemeral=True
+        )
+
+        # generate the response
+        async with thread.typing():
+            await asyncio.sleep(wait_time)
+
+        # send response
+        await puppet_response(
+            username=username, thread=thread, message=message
         )
 
     except Exception as e:
