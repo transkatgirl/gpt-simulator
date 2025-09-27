@@ -43,4 +43,4 @@ MAX_CHARS_PER_REPLY_MSG = (
     1500  # discord has a 2k limit, we just break message into 1.5k
 )
 PUPPET_CHARS_PER_TOKEN = 4
-PUPPET_TOKENS_PER_SECOND = 20
+PUPPET_TOKENS_PER_SECOND = 24
