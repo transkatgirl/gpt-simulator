@@ -58,6 +58,7 @@ async def generate_completion_response(
             temperature=1.0,
             min_p=0.05,
             max_tokens=512,
+            repeat_penalty=1.1,
             stop=stop_tokens,
         )
         reply = response.choices[0].text.strip()
